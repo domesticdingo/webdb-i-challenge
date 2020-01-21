@@ -13,20 +13,19 @@ server.get('/', (req, res) => {
 })
 
 //Get all accounts
-server.get('/accounts', (req, res) => {
-    db.get()
-        .then(acc => res.status(200).json(acc))
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ error: "There was an error getting the accounts." });
-        })
+server.get('/accounts', async (req, res, next) => {
+    try {
+        res.json(await db.select('*').from('accounts'))
+    } catch(err) {
+        next(err)
+    }
 })
 
 //Get account by ID
 server.get('/accounts/:id', (req, res) => {
     const id = req.params.id;
 
-    db.get(id)
+    db('accounts').where({ id })
         .then(acc => res.status(200).json(acc))
         .catch(err => {
             console.log(err);
@@ -38,7 +37,7 @@ server.get('/accounts/:id', (req, res) => {
 server.post('/accounts', (req, res) => {
     const acc = req.body;
 
-    db.insert(acc)
+    db('accounts').insert(acc)
         .then(acc => res.status(200).json(acc))
         .catch(err => {
             console.log(err);
@@ -51,7 +50,7 @@ server.put('/accounts/:id', (req, res) => {
     const acc = req.params.id;
     const update = req.body;
 
-    db.update(acc, update)
+    db('accounts').where({ acc }).update(update)
         .then(acc => res.status(200).json(acc))
         .catch(err => {
             console.log(err);
@@ -63,7 +62,7 @@ server.put('/accounts/:id', (req, res) => {
 server.delete('/accounts/:id', (req, res) => {
     const id = req.params.id;
 
-    db.remove(id)
+    db('accounts').where(id).del()
         .then(acc => res.status(200).json(acc))
         .catch(err => {
             console.log(err);
