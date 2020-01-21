@@ -13,12 +13,13 @@ server.get('/', (req, res) => {
 })
 
 //Get all accounts
-server.get('/accounts', async (req, res, next) => {
-    try {
-        res.json(await db.select('*').from('accounts'))
-    } catch(err) {
-        next(err)
-    }
+server.get('/accounts', (req, res) => {
+    db('accounts')
+    .then(acc => res.status(200).json(acc))
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({ error: "There was an error getting the accounts." })
+    })
 })
 
 //Get account by ID
@@ -50,7 +51,7 @@ server.put('/accounts/:id', (req, res) => {
     const acc = req.params.id;
     const update = req.body;
 
-    db('accounts').where({ acc }).update(update)
+    db('accounts').where('id', acc).update(update)
         .then(acc => res.status(200).json(acc))
         .catch(err => {
             console.log(err);
@@ -62,7 +63,7 @@ server.put('/accounts/:id', (req, res) => {
 server.delete('/accounts/:id', (req, res) => {
     const id = req.params.id;
 
-    db('accounts').where(id).del()
+    db('accounts').where('id', id).del()
         .then(acc => res.status(200).json(acc))
         .catch(err => {
             console.log(err);
